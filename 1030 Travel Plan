@@ -1,0 +1,110 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+#include<algorithm>
+using namespace std;
+int e[500][500], c[500][500];// distence cost
+vector<int> pre[500];//到达当前节点的前一个节点
+vector<vector<int> > st; //最短距离的路径
+vector<int> path, tmppath;
+int inf = 99999999;
+int mincost = inf;
+int totalcost = 0;
+int S;//由于dfs 要用到这个变量，所以从main里提前  出发城市
+void dfs(int node, int front)
+{
+	tmppath.push_back(node);
+	int xx;
+	if (front == -1)
+	{
+		xx = 0;
+	}
+	else
+	{
+		xx = c[node][front];
+	}
+	totalcost += xx;
+	if (node == S)
+	{
+		if (totalcost < mincost)
+		{
+			mincost = totalcost;
+			path.clear();
+			path = tmppath;
+		}
+		totalcost = totalcost - xx;
+	tmppath.pop_back();
+		return;
+	}
+	for (int i = 0; i < pre[node].size(); i++)
+	{
+		dfs(pre[node][i], node);
+	}
+	totalcost = totalcost - xx;
+	tmppath.pop_back();
+}
+
+int main()
+{
+	int N, M, D;
+	int a, b, tmp1, tmp2;
+	fill(e[0], e[0] + 500 * 500, inf);
+	fill(c[0], c[0] + 500 * 500, inf);
+	scanf("%d%d%d%d", &N, &M, &S, &D);
+	for (int i = 0; i < M; i++)
+	{
+		scanf("%d%d", &a, &b);
+		scanf("%d", &tmp1);
+		e[a][b] = e[b][a] = tmp1;
+		scanf("%d", &tmp2);
+		c[a][b] = c[b][a] = tmp2;
+	}       //输入结束
+	//Dijkstra
+	int dis[500];
+	int mark[500];
+	fill(mark, mark + 500, 0);
+	fill(dis, dis + 500, inf);
+	dis[S] = 0;
+	pre[S].push_back(S);
+	int point, near;//当前选择要加入的点 和 最近
+	for (int i = 0; i < N; i++)
+	{
+		point = -1, near = inf;
+		for (int j = 0; j < N; j++)
+		{
+			if (mark[j] == 0 && dis[j] < near)
+			{
+				point = j;
+				near = dis[j];
+			}
+		}
+		if (near == inf)break;//所有可达点都已加入
+		mark[point] = 1;
+		for (int j = 0; j < N; j++)
+		{
+			if (dis[j] > dis[point] + e[point][j])
+			{
+				dis[j] = dis[point] + e[point][j];
+				pre[j].clear();
+				pre[j].push_back(point);
+			}
+			else if (dis[j] == dis[point] + e[point][j])
+			{
+				pre[j].push_back(point);
+			}
+		}
+
+
+	}
+	dfs(D, -1);//pre存的是到当前节点的前一个节点，所以要倒回去
+	if(path.size()>1)
+	for (int i = path.size() - 1; i >= 0; i--)
+	{
+		printf("%d ", path[i]);
+	}
+	else
+	printf("%d",S);
+	printf("%d %d", dis[D], mincost);
+	return 0;
+
+}
