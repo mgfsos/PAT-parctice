@@ -1,0 +1,69 @@
+#include<cstdio>
+#include<algorithm>
+using namespace std;
+int w[510];//当前到达该路点时，聚集的人数
+int e[510][510];
+int m[510];
+int num[510];
+int  inf = 99999;
+
+int main()
+{
+	int n, m2, c1, c2, a, b, c;
+	scanf("%d%d%d%d", &n, &m2, &c1, &c2);
+	for (int i = 0; i < n; i++)
+	{
+		scanf("%d", &m[i]);
+	}
+	fill(e[0], e[0] + 510 * 510, inf);
+	for (int i = 0; i < m2; i++)
+	{
+		scanf("%d%d%d", &a, &b, &c);
+		e[a][b] = e[b][a] = c;
+	}
+
+	int mark[500];
+	int dis[500];
+	fill(dis, dis + 500, inf);
+	fill(mark, mark + 500, 0);
+	dis[c1] = 0; w[c1] = m[c1]; num[c1] = 1;
+	int now; int mp;
+	for (int i = 0; i < n; i++)
+	{
+		now = -1; mp = inf;
+		for (int j = 0; j < n; j++)
+		{
+			if (mark[j] == 0 && dis[j] < mp)
+			{
+				now = j;
+				mp = dis[j];
+			}
+		}
+		
+		if (mp == inf)break;
+		mark[now] = 1;
+		for (int j = 0; j < n; j++)
+		{
+			if (dis[j] > dis[now] + e[now][j])
+			{
+				dis[j] = dis[now] + e[now][j];
+				w[j] = m[j] + w[now];
+				num[j] = num[now];
+			}
+			else if (dis[j] == dis[now] + e[now][j])
+			{
+				num[j] = num[j] + num[now];
+				if (w[j] < m[j] + w[now])
+				{
+					w[j] = m[j] + w[now];
+					
+				}
+			}
+		}
+	}
+	printf("%d %d", num[c2], w[c2]);
+
+
+
+
+}
